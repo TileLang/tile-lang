@@ -222,17 +222,17 @@ def assert_tl_matmul_correctness(M, N, K, in_dtype, out_dtype, accum_dtype):
     assert latency is not None
 
     # Get Reference Result
-    ref_c = torch.matmul(A.to(torch.float32), B.T.to(torch.float32)).to(out_dtype)
+    ref_c = torch.matmul(A.to(accum_dtype), B.T.to(accum_dtype)).to(out_dtype)
     print(C)
     print(ref_c)
     torch.testing.assert_close(C, ref_c, rtol=1e-2, atol=1e-2)
 
 
+@tilelang.testing.requires_cuda
+@tilelang.testing.requires_cuda_compute_version(8, 9)
 def test_assert_tl_matmul():
-    assert_tl_matmul_correctness(128, 128, 128, "float16", "float16", "float16")
-    assert_tl_matmul_correctness(128, 256, 256, "float16", "float32", "float32")
-    assert_tl_matmul_correctness(128, 256, 256, "int8", "int32", "int32")
-    # fp8 test please checkout testing/python/kernel/test_tilelang_kernel_fp8_gemm_mma.py
+    assert_tl_matmul_correctness(128, 128, 128, "e4m3_float8", "float32", "float32")
+    assert_tl_matmul_correctness(128, 128, 128, "e5m2_float8", "float32", "float32")
 
 
 if __name__ == "__main__":
